@@ -20,15 +20,7 @@ from auto_tune_vllm import (
 
 def main():
     # Create study configuration
-    config = StudyConfig.from_file("examples/study_config.yaml")
-
-    # Setup Optuna study with PostgreSQL
-    study = optuna.create_study(
-        storage=config.database_url,
-        study_name="my_vllm_study",
-        direction="maximize",  # or ["maximize", "minimize"] for multi-objective
-        load_if_exists=True,
-    )
+    config = StudyConfig.from_file("examples/study_config_test.yaml")
 
     # Choose execution backend
     # Option 1: Ray distributed execution
@@ -39,12 +31,13 @@ def main():
     # Option 2: Local execution for testing
     backend = LocalExecutionBackend(max_concurrent=2)  # Use this for testing
 
-    # Create study controller
-    controller = StudyController(backend=backend, study=study, config=config)
+    # Create study controller (this will properly create the Optuna study with correct sampler)
+    controller = StudyController.create_from_config(backend=backend, config=config)
 
     # Run optimization
     print("Starting vLLM optimization study...")
-    controller.run_optimization(n_trials=100)
+    
+    controller.run_optimization(n_trials=config.optimization.n_trials, max_concurrent_trials=config.optimization.max_concurrent_trials)
 
     results = controller.get_optimization_results()
 

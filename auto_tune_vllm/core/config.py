@@ -537,6 +537,7 @@ class ConfigValidator:
                 ObjectiveConfig(**obj) for obj in objectives_data
             ]
 
+        print(f"Optimization config: {opt_config_data}")
         optimization = OptimizationConfig(**opt_config_data)
         benchmark = BenchmarkConfig(**raw_config["benchmark"])
 

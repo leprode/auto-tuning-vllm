@@ -227,7 +227,10 @@ class BaseTrialController(TrialController):
         Get trial logger for specific component.
         Fallback to default if not available.
         """
-        return self.trial_loggers.get(component, logger)
+        # Check if trial_loggers exists before accessing it
+        if hasattr(self, 'trial_loggers') and self.trial_loggers:
+            return self.trial_loggers.get(component, logger)
+        return logger
 
     def _flush_logger_handlers(self, target_logger):
         """
@@ -1103,6 +1106,12 @@ class BaseTrialController(TrialController):
 
     def _stop_health_monitoring(self):
         """Stop the health monitoring thread."""
+        # Check if attributes exist before accessing them
+        if not (hasattr(self, '_health_monitor_thread') and 
+                hasattr(self, '_health_monitor_stop') and
+                hasattr(self, '_health_monitor_stop_event')):
+            return
+            
         if self._health_monitor_thread and self._health_monitor_thread.is_alive():
             vllm_logger = self._get_trial_logger("vllm")
             vllm_logger.info("Stopping health monitoring thread")
@@ -1185,7 +1194,8 @@ class BaseTrialController(TrialController):
         self._flush_logger_handlers(controller_logger)
 
         # Terminate any running benchmark process
-        if self.benchmark_provider:
+        # Check if benchmark_provider exists before accessing it
+        if hasattr(self, 'benchmark_provider') and self.benchmark_provider:
             try:
                 controller_logger.info(
                     "Trial Controller: Terminating benchmark process..."
@@ -1200,7 +1210,8 @@ class BaseTrialController(TrialController):
                 )
                 self._flush_logger_handlers(controller_logger)
 
-        if self.vllm_process:
+        # Check if vllm_process exists before accessing it
+        if hasattr(self, 'vllm_process') and self.vllm_process:
             pid = self.vllm_process.pid
             controller_logger.info(
                 f"Trial Controller: Cleaning up vLLM server process (PID: {pid})..."
@@ -1295,13 +1306,15 @@ class BaseTrialController(TrialController):
 
         # Flush all trial logs to ensure cleanup messages are written
         controller_logger.info("Trial Controller: Cleanup complete, flushing logs...")
-        for component_logger in self.trial_loggers.values():
-            for handler in component_logger.handlers:
-                try:
-                    handler.flush()
-                except Exception as e:
-                    # Use module logger as fallback since trial logger might be affected
-                    logger.debug(f"Failed to flush handler during cleanup: {e}")
+        # Check if trial_loggers exists before accessing it
+        if hasattr(self, 'trial_loggers') and self.trial_loggers:
+            for component_logger in self.trial_loggers.values():
+                for handler in component_logger.handlers:
+                    try:
+                        handler.flush()
+                    except Exception as e:
+                        # Use module logger as fallback since trial logger might be affected
+                        logger.debug(f"Failed to flush handler during cleanup: {e}")
         controller_logger.info("Trial Controller: Log flush complete")
 
     @abstractmethod

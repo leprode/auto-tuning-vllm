@@ -640,6 +640,13 @@ class StudyController:
 
             # Cache trial object for setting user attributes later
             self.trial_objects[trial.number] = trial
+            
+            if trial.should_prune:
+                logger.info(
+                    "Trial %d has been pruned. Parameters: %s",
+                    trial.number,
+                    trial.params,
+                )
 
             trial_config = self._build_trial_config(trial)
             # Increasing the timeout for vLLM startup
