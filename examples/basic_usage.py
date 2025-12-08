@@ -20,7 +20,7 @@ from auto_tune_vllm import (
 
 def main():
     # Create study configuration
-    config = StudyConfig.from_file("examples/study_config_test.yaml")
+    config = StudyConfig.from_file("examples/study_config_vllm.yaml")
 
     # Choose execution backend
     # Option 1: Ray distributed execution

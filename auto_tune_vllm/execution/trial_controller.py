@@ -15,6 +15,7 @@ import ray
 from ray.exceptions import GetTimeoutError
 
 from ..benchmarks.providers import BenchmarkProvider, GuideLLMBenchmark
+from ..benchmarks.vllm_benchmark import VllmBenchmark
 from ..core.trial import ExecutionInfo, TrialConfig, TrialResult
 from ..logging.manager import CentralizedLogger
 
@@ -538,6 +539,8 @@ class BaseTrialController(TrialController):
 
         if benchmark_type == "guidellm":
             return GuideLLMBenchmark()
+        if benchmark_type == "vllm":
+            return VllmBenchmark()
         else:
             # Import custom provider by name
             # This enables extensibility for custom benchmarks
