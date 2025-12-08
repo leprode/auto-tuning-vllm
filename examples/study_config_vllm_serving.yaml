@@ -1,0 +1,79 @@
+# Example study configuration with auto-generated study name
+study:
+  name: "local_single_trial_test_22"  # <- Comment out to use auto-generation
+  # Will auto-generate unique name like: study_123456
+  # No database - will use local SQLite storage in temp folder
+
+optimization:
+  # High-throughput optimization: Maximize token generation rate
+  # approach: "single_objective" or "multi_objective"
+  # objective:
+  #   metric: "output_tokens_per_second"  # Throughput optimization
+  #   direction: "maximize"
+  #   percentile: "mean"  # Use median for stable results
+  # # sampler: "botorch"
+  # n_trials: 200
+  preset: "high_throughput"
+  sampler: "tpe"
+  n_trials: 11
+  max_concurrent_trials: 1
+
+benchmark:
+  benchmark_type: "vllm_serving"
+  model: "/data/models/DeepSeek-R1-Distill-Llama-8B" 
+  max_seconds: 30000
+  dataset: "random"
+  prompt_tokens: 512
+  output_tokens: 12800
+  rate: 50
+  samples: 50
+  max_concurrency: 128
+
+logging:
+  file_path: "/tmp/auto-tune-vllm-local-run/logs"  # Local temp folder
+  log_level: "INFO"
+
+parameters: # parameters to optimize
+  gpu_memory_utilization:
+    enabled: true
+    min: 0.9
+    max: 0.95
+    step: 0.01
+
+  max_num_seqs:
+    enabled: true
+    options: [64, 128, 256, 512, 1024]
+
+  block_size:
+    enabled: true
+    options: [32, 64]
+  
+  max_num_batched_tokens:
+    enabled: true
+    min: 2048
+    max: 16384 
+    step: 1024
+
+  max_model_len:
+    enabled: true
+    min: 5120
+    max: 16384
+    step: 1024
+
+static_environment_variables:
+  VLLM_USE_V1: "1"
+  VLLM_STARTUP_TIMEOUT: "900"  # 15 minutes timeout for vLLM server startup
+
+static_parameters:
+  tensor_parallel_size: 2
+  dtype: "bfloat16"
+  distributed-executor-backend: "mp"
+  # default parameters
+  gpu_memory_utilization: 0.9
+  max_num_seqs: 128
+  block_size: 64
+  max_num_batched_tokens: 10240
+  max_model_len: 10240
+  trust_remote_code: true
+  enable_prefix_caching: true
+  ignore_eos: true
