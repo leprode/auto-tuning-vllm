@@ -211,6 +211,8 @@ class VllmBenchmark(BenchmarkProvider):
         # Add max concurrency if specified
         if hasattr(config, 'max_concurrency') and config.max_concurrency is not None:
             cmd.extend(["--max-concurrency", str(config.max_concurrency)])
+        elif config.concurrency is not None:
+            cmd.extend(["--max-concurrency", str(config.concurrency)])
         
         # Add other optional parameters
         if hasattr(config, 'seed') and config.seed is not None:

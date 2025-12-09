@@ -840,6 +840,15 @@ class StudyController:
                 value = param_config.generate_optuna_suggest(trial)
                 parameters[param_name] = value
 
+        # Create a copy of the benchmark config to modify for this trial
+        benchmark_config = self.config.benchmark.copy()
+        
+        # Add optimizable benchmark parameter values
+        for param_name, param_config in self.config.benchmark_parameters.items():
+            if param_config.enabled:
+                value = param_config.generate_optuna_suggest(trial)
+                setattr(benchmark_config, param_name, value)
+        
         return TrialConfig(
             study_name=self.config.study_name,
             trial_id=f"trial_{trial.number}",
@@ -848,7 +857,7 @@ class StudyController:
             parameters=parameters,
             parameter_configs=self.config.parameters,
             static_environment_variables=self.config.static_environment_variables,
-            benchmark_config=self.config.benchmark,
+            benchmark_config=benchmark_config,
             optimization_config=self.config.optimization,
             logging_config=self.config.logging_config,
         )

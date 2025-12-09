@@ -1,6 +1,6 @@
 # Example study configuration with auto-generated study name
 study:
-  name: "local_single_trial_test_21"  # <- Comment out to use auto-generation
+  name: "local_single_trial_test_26"  # <- Comment out to use auto-generation
   # Will auto-generate unique name like: study_123456
   # No database - will use local SQLite storage in temp folder
 
@@ -27,6 +27,7 @@ benchmark:
   output_tokens: 4096
   rate: 50
   samples: 50  # Number of randomly generated prompts for benchmarking
+  concurrency: 50
 
 logging:
   file_path: "/tmp/auto-tune-vllm-local-run/logs"  # Local temp folder
@@ -58,6 +59,19 @@ parameters: # parameters to optimize
     min: 5120
     max: 16384
     step: 1024
+
+benchmark_parameters: # benchmark parameters to optimize
+  rate:
+    enabled: true
+    min: 40
+    max: 50
+    step: 10
+    
+  concurrency:
+    enabled: true
+    min: 40
+    max: 50
+    step: 10
 
 static_environment_variables:
   VLLM_USE_V1: "1"

@@ -291,6 +291,7 @@ class StudyConfig:
         False  # Flag to indicate explicit name usage (affects load_if_exists behavior)
     )
     constraints: list[Constraint] = field(default_factory=list)
+    benchmark_parameters: Dict[str, ParameterConfig] = field(default_factory=dict)
 
     @classmethod
     def from_file(
@@ -477,6 +478,21 @@ class ConfigValidator:
 
             validated_params[param_name] = validated_param
 
+        # Validate benchmark_parameters section
+        validated_benchmark_params = {}
+        if "benchmark_parameters" in raw_config:
+            benchmark_params_data = raw_config["benchmark_parameters"]
+            if not isinstance(benchmark_params_data, dict):
+                raise TypeError(
+                    "Benchmark parameters must be provided as a mapping of parameter names "
+                    "to configuration dictionaries"
+                )
+
+            for param_name, param_config in benchmark_params_data.items():
+                validated_benchmark_params[param_name] = self._build_parameter_config(
+                    param_name, param_config
+                )
+
         # Validate static environment variables (simple key-value pairs)
         static_env_vars = {}
         for env_name, env_value in raw_config.get(
@@ -605,6 +621,7 @@ class ConfigValidator:
             study_prefix=study_prefix,
             use_explicit_name=use_explicit_name,
             constraints=constraints,
+            benchmark_parameters=validated_benchmark_params,
         )
 
     def _infer_parameter_type(self, parameter_config: dict[str, Any]):

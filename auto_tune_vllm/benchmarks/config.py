@@ -37,3 +37,7 @@ class BenchmarkConfig:
     def use_synthetic_data(self) -> bool:
         """Whether to use synthetic data instead of a dataset."""
         return self.dataset is None
+    
+    def copy(self) -> "BenchmarkConfig":
+        """Return a copy of the benchmark configuration."""
+        return BenchmarkConfig(**self.__dict__)
