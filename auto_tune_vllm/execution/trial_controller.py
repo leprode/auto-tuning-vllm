@@ -16,6 +16,7 @@ from ray.exceptions import GetTimeoutError
 
 from ..benchmarks.providers import BenchmarkProvider, GuideLLMBenchmark
 from ..benchmarks.vllm_benchmark import VllmBenchmark
+from ..benchmarks.batchflow_benchmark import BatchFlowBenchmark
 from ..core.trial import ExecutionInfo, TrialConfig, TrialResult
 from ..logging.manager import CentralizedLogger
 
@@ -539,8 +540,10 @@ class BaseTrialController(TrialController):
 
         if benchmark_type == "guidellm":
             return GuideLLMBenchmark()
-        if benchmark_type == "vllm":
+        elif benchmark_type == "vllm":
             return VllmBenchmark()
+        elif benchmark_type == "batchflow":
+            return BatchFlowBenchmark()
         else:
             # Import custom provider by name
             # This enables extensibility for custom benchmarks
@@ -762,8 +765,15 @@ class BaseTrialController(TrialController):
                     self.benchmark_provider.set_logger(benchmark_logger)
 
                 if hasattr(self.benchmark_provider, "set_trial_context"):
+                    log_file_path = (
+                        trial_config.logging_config.get("file_path")
+                        if trial_config.logging_config
+                        else None
+                    )
                     self.benchmark_provider.set_trial_context(
-                        trial_config.study_name, trial_config.trial_id
+                        trial_config.study_name, 
+                        trial_config.trial_id,
+                        log_file_path
                     )
 
                 # Start benchmark as subprocess

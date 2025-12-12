@@ -33,6 +33,9 @@ class BenchmarkConfig:
     # Logging level for GuideLLM
     logging_level: Literal["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"] = "INFO"
     
+    # batchflow binary path
+    batchflow_path: str = "batchflow"
+    
     @property
     def use_synthetic_data(self) -> bool:
         """Whether to use synthetic data instead of a dataset."""

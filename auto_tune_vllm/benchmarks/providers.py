@@ -32,11 +32,12 @@ class BenchmarkProvider(ABC):
         """Set a custom logger for this benchmark provider."""
         self._logger = custom_logger
 
-    def set_trial_context(self, study_name: str, trial_id: str):
+    def set_trial_context(self, study_name: str, trial_id: str, log_file_path: str = None):
         """Set trial context for benchmark result storage."""
         self._trial_context = {
             'study_name': study_name,
-            'trial_id': trial_id
+            'trial_id': trial_id,
+            'log_file_path': log_file_path
         }
     
     def terminate_benchmark(self):
